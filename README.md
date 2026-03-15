@@ -23,6 +23,8 @@ JOIN SpecObj AS s ON s.bestobjid = p.objid
 ```
 The Jupyter Notebook aims to inform the general public about somewhat modern astrophysics, and answer the question:
 
-    *“What drives galaxy transformation, and can we predict where a galaxy is in its evolutionary lifecycle?”*
+   *“What drives galaxy transformation, and can we predict where a galaxy is in its evolutionary lifecycle?”*
+
+<br>
 
 If any mistakes or inaccuracies are noticed, please notify me.
