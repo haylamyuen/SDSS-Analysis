@@ -1,0 +1,17 @@
+[build-system]
+requires = ["setuptools"]
+build-backend = "setuptools.build_meta"
+
+[project]
+name = "sdss_analysis"
+version = "0.1.0"
+description = "SDSS data analysis and visualisation project"
+authors = [{ name = "Haylam Yuen" }]
+readme = "README.md"
+dependencies = [
+    "numpy",
+    "matplotlib",
+    "pandas",
+    "seaborn",
+    "plotly"
+]
