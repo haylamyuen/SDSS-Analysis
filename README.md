@@ -13,8 +13,8 @@ The following SQL query was used:
 ```
 SELECT TOP 500000
 p.objid,p.ra,p.dec,p.u,p.g,p.r,p.i,p.z,
-s.specobjid, s.class, s.zWarning, s.z as redshift,
-p.flags, p.petroRad_r, p.petroMag_r,
+s.class, s.zWarning, s.z as redshift,
+p.petroRad_r, p.petroMag_r,
 p.expRad_r, p.deVRad_r, p.fracDeV_r, p.expAB_r, p.deVAB_r
 
 FROM PhotoObj AS p
