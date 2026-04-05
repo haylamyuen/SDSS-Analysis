@@ -1,6 +1,7 @@
 # Import necessary libraries
 import matplotlib.pyplot as plt
 import seaborn as sns
+from IPython.display import display, HTML
 
 def format_notebook():
     # Theme Setup
@@ -23,3 +24,8 @@ def format_notebook():
         "font.size": 12,
         "savefig.facecolor": "#1e1e1e"
     })
+
+    display(HTML("""<style>
+        .widget-label { color: #cccccc !important; font-family: monospace !important; }
+        .jupyter-widgets { background: transparent !important; }
+    </style>"""))
