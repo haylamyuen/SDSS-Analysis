@@ -1,8 +1,9 @@
-# SDSS Data Analysis
+# Project GATORS
+## (Galaxy Analysis, Trends, and Observations with Research of the SDSS)
 
 ### This is a Small Project by Haylam Yuen
 
-<span style="color: #AAAAAA">If you want to use any part of this project, feel free</span>
+<span style="color: #AAAAAA">If you would like to use any part of this project, feel free</span>
 
 <br>
 
