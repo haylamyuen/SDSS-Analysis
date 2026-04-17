@@ -26,7 +26,7 @@ def plot_redshift(z):
     ax.plot(wavelength, gauss(wavelength, shifted_wl), lw=2.5, color="#ff5555", label=f"H-alpha: {REST_WL:.0f} nm --> {shifted_wl:.0f} nm")
 
     # Set plot aesthetics
-    ax.set_title(f"z = {z:.2f}  |  stretched by {z*100:.0f}%  |  ~{round(z*13800):,} million light-years", color="#cccccc", fontsize=12, loc="left", pad=8)
+    ax.set_title(f"z = {z:.2f}  |  stretched by {z*100:.0f}%", color="#cccccc", fontsize=12, loc="left", pad=8)
     ax.set_xlabel("Wavelength (nm)", color="#aaaaaa", fontsize=9)
     ax.set_xlim(300, 2500)
     ax.set_ylim(0, 1.3)
@@ -105,6 +105,83 @@ def sky_map(df):
 
     # Show the graph
     fig.show()
+
+def mass_quenching(galaxies):
+    # Setup the plot
+    fig, axes = plt.subplots(1, 2, figsize=(14, 5), facecolor="#1e1e1e")
+    fig.suptitle("Mass-Dependent Quenching", color="#e0e0e0", fontsize=12, fontweight="bold", y=1.01)
+
+    # LEFT PLOT: Quenched fraction vs Absolute magnitudes
+    ax1 = axes[0]; ax1.set_facecolor("#1e1e1e")
+
+    # Define redshift slices (aka lookback times)
+    z_slices = [(0.01, 0.05, "#74c7ec", "z = 0.01–0.05"),
+                (0.05, 0.10, "#a6e3a1", "z = 0.05–0.10"),
+                (0.10, 0.15, "#fab387", "z = 0.10–0.15"),
+                (0.15, 0.20, "#f38ba8", "z = 0.15–0.20")]
+    M_bins = np.linspace(-23.5, -18.0, 14) # Bins for absolute magnitude
+    M_mids = 0.5*(M_bins[:-1]+M_bins[1:]) # Midpoints of the magnitude bins
+
+    for z_lo, z_hi, color, label in z_slices: # Loop over redshift slices
+        sl = galaxies[(galaxies["redshift"]>=z_lo) & (galaxies["redshift"]<z_hi) & (galaxies["M_r"].notna())] # Select galaxies in the current redshift slice with valid M_r values
+        fq = []
+        for lo, hi in zip(M_bins[:-1], M_bins[1:]): # Loop over magnitude bins
+            b = sl[(sl["M_r"]>=lo) & (sl["M_r"]<hi)] # Select galaxies in the current magnitude bin
+            fq.append((b["g_r"] > 0.65).sum() / len(b)) # Calculate the quenched fraction (g-r > 0.65) and append to the list
+
+        ax1.plot(M_mids, fq, color=color, lw=2, marker="o", markersize=4, label=label) # Plot the quenched fraction vs magnitude for the current redshift slice
+
+    # Final plot formatting for the left plot
+    ax1.invert_xaxis() # So that brighter magnitudes are on the right
+    ax1.set_xlabel("Absolute magnitude", color="#aaaaaa", fontsize=10)
+    ax1.set_ylabel("Quenched fraction of galaxies (g−r > 0.65)", color="#aaaaaa", fontsize=10)
+    ax1.set_title("Quenched fraction vs luminosity", color="#cccccc", fontsize=9, pad=8)
+    ax1.set_ylim(0, 1.05)
+    ax1.axhline(0.5, color="#555555", lw=1, ls=":")
+    ax1.text(-18.1, 0.52, "50%", color="#555555", fontsize=7.5, style="italic")
+    ax1.tick_params(colors="#777777", labelsize=8)
+    ax1.grid(True, ls=":", alpha=0.10, color="#ffffff")
+    ax1.legend(facecolor="#2a2a2a", edgecolor="#444444", labelcolor="#e0e0e0", fontsize=8)
+    for sp in ax1.spines.values():
+        sp.set_edgecolor("#333333")
+
+    # RIGHT PLOT: Median g-r vs Redshift for bright vs faint subsamples
+    ax2 = axes[1]; ax2.set_facecolor("#1e1e1e")
+
+    # Set up redshift bins for the right plot
+    z_bins = np.linspace(0.01, 0.20, 16)
+    z_mids = 0.5*(z_bins[:-1]+z_bins[1:])
+
+    # Loop over bright and faint subsamples defined by absolute magnitude cuts
+    for Mr_cut, color, label, ls in [(-21.5, "#f38ba8", "Bright  ($M_r < -21.5$)", "-"), (-19.5, "#74c7ec", "Faint  ($M_r > -19.5$)",  "--"),]:
+        if Mr_cut < -20: # If bright subsample, select galaxies with M_r < Mr_cut
+            sub = galaxies[galaxies["M_r"] < Mr_cut]
+        else: # Otherwise if faint, then select subsample with M_r > Mr_cut
+            sub = galaxies[galaxies["M_r"] > Mr_cut]
+        meds, errs = [], []
+        for lo, hi in zip(z_bins[:-1], z_bins[1:]): # Loop over redshift bins
+            b = sub[(sub["redshift"]>=lo) & (sub["redshift"]<hi)]["g_r"].dropna() # Select g-r values for galaxies in the current redshift bin and drop NaNs
+            meds.append(np.median(b)) # Append the median g-r colour
+            errs.append(b.std() / np.sqrt(len(b))) # Append the standard deviation of the mean for the g-r colour
+        meds = np.array(meds); errs = np.array(errs)
+        ax2.plot(z_mids, meds, color=color, lw=2, ls=ls, label=label) # Plot the median g-r colour vs redshift
+        ax2.fill_between(z_mids, meds-errs, meds+errs, color=color, alpha=0.15) # Fill the area between the deviation bounds
+
+    # Final plot formatting for the right plot
+    ax2.axhspan(0.55, 0.76, color="#69db7c", alpha=0.06)
+    ax2.text(0.195, 0.655, "Green Valley", color="#69db7c", fontsize=7.5, ha="right", style="italic")
+    ax2.set_xlabel("Redshift", color="#aaaaaa", fontsize=10)
+    ax2.set_ylabel("Median g − r colour", color="#aaaaaa", fontsize=10)
+    ax2.set_title("Colour evolution across time\n(bright vs faint galaxies)", color="#cccccc", fontsize=9, pad=8)
+    ax2.tick_params(colors="#777777", labelsize=8)
+    ax2.grid(True, ls=":", alpha=0.10, color="#ffffff")
+    ax2.legend(facecolor="#2a2a2a", edgecolor="#444444", labelcolor="#e0e0e0", fontsize=8)
+    for sp in ax2.spines.values():
+        sp.set_edgecolor("#333333")
+
+    # Show the plot
+    plt.tight_layout()
+    plt.show()
 
 def hubble_fork():
     out = """
