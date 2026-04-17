@@ -65,6 +65,8 @@ H0, Om, OL, c_kms = 70.0, 0.3, 0.7, 2.998e5
 def E(z): # dimensionless Hubble parameter
     return np.sqrt(Om*(1+z)**3 + OL)
 
-def d_L_mpc(z): # luminosity distance in Mpc
-    dc, _ = quad(lambda zp: 1/E(zp), 0, z)
-    return c_kms/H0 * dc * (1+z)
+def d_L_mpc(z): # Luminosity distance in Mpc
+    if np.isscalar(z): # Check if z is a single value or an array
+        dc, _ = quad(lambda zp: 1/E(zp), 0, z) # Comoving distance integral
+        return c_kms/H0 * dc * (1+z) # Convert to luminosity distance
+    return np.array([d_L_mpc(zi) for zi in z]) # Handle array input by applying the function element-wise
