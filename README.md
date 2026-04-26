@@ -25,7 +25,7 @@ JOIN SpecObj AS s ON s.bestobjid = p.objid
 
 The Jupyter Notebook aims to inform the general public about somewhat modern astrophysics through being the base for a Science Museum exhibition, and answer the question:
 
-   *“What are the features of galaxy transformation, and can we predict where a galaxy is in its evolutionary lifecycle?”*
+   *“What drives galaxy transformation, and can we predict where a galaxy is in its evolutionary lifecycle?”*
 
 <br>
 
